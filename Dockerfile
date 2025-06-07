@@ -19,7 +19,8 @@ RUN apk add --no-cache git patch make
 RUN corepack enable
 COPY --from=stage0 /vault /vault
 WORKDIR /vault
-RUN --mount=type=cache,target=/root/.cache/yarn \
+RUN --mount=type=cache,target=/root/.yarn/ \
+    --mount=type=cache,target=/root/.cache/yarn \
     --mount=type=cache,target=/usr/local/share/.cache/yarn \
 <<EOF
     cd ui/
@@ -35,7 +36,7 @@ RUN apk add --no-cache bash git patch
 
 # Copy the Vault source code from the previous stage
 COPY --from=stage0 /vault /vault
-COPY --from=stage1 /vault/http/web_ui /vault/http/web_ui
+COPY --from=stage1 /vault/http/web_ui/ /vault/http/web_ui/
 WORKDIR /vault
 
 # Build the Vault binary
@@ -57,14 +58,13 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     GIT_DIRTY=$(test -n "`git status --porcelain`" && echo "+CHANGES" || true)
     DATE_FORMAT="%Y-%m-%dT%H:%M:%SZ"
     GIT_DATE=$(date -u +${DATE_FORMAT})
-    GOTAGS=vault
+    GOTAGS="vault ui"
 
     GOLDFLAGS="-w -s"
     GOLDFLAGS="${GOLDFLAGS} -X ${GIT_IMPORT}.GitCommit=${GIT_COMMIT}${GIT_DIRTY}"
     GOLDFLAGS="${GOLDFLAGS} -X ${GIT_IMPORT}.BuildDate=${GIT_DATE}"
 
-    # for GOARCH in amd64 arm64; do
-    for GOARCH in arm64; do
+    for GOARCH in amd64 arm64; do
         mkdir -p ./pkg/bin/linux_${GOARCH}
         CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o ./pkg/bin/linux_${GOARCH} -tags "${GOTAGS}" -ldflags "${GOLDFLAGS}" .
     done
