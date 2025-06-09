@@ -9,7 +9,7 @@ target "default" {
         # VAULT_VERSION = "1.19.0"
     }
     tags = [
-        "localhost/vault:dev"
+        "soramitsukhmer-lab/vault:dev"
     ]
 }
 
@@ -23,6 +23,6 @@ target "dev" {
         # DOCKER_META_VERSION = "1.19.0-dev"
     }
     tags = [
-        "localhost/vault:dev"
+        "soramitsukhmer-lab/vault:dev"
     ]
 }
