@@ -1,6 +1,6 @@
 ## About
 
-This repository is used to build the container image for [soramitsukhmer-lab/vault#ed25519sha3](https://github.com/soramitsukhmer-lab/vault/tree/ed25519sha3).
+This repository is used to build the container image for [soramitsukhmer-lab/vault#builtin/logical/transit/ed25519sha3](https://github.com/soramitsukhmer-lab/vault/tree/builtin/logical/transit/ed25519sha3).
 
 Run the following command to build the image:
 ```bash
