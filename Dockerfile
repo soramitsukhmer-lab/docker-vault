@@ -10,7 +10,7 @@ RUN apk add --no-cache git patch
 # Clone the hashicorp/vault repository
 ARG VAULT_VERSION
 # RUN git clone --depth=1 --branch=v${VAULT_VERSION} --single-branch https://github.com/hashicorp/vault.git /vault
-RUN git clone --depth=1 --branch=ed25519sha3 --single-branch https://github.com/soramitsukhmer-lab/vault.git /vault
+RUN git clone --depth=1 --branch=builtin/logical/transit/ed25519sha3 --single-branch https://github.com/soramitsukhmer-lab/vault.git /vault
 WORKDIR /vault
 
 # Stage 1: Build the UI
