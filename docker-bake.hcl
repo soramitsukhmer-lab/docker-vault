@@ -13,7 +13,7 @@ target "default" {
     ]
 }
 
-target "dev" {
+target "release" {
     inherits = ["docker-metadata-action"]
     args = {
         ALPINE_VERSION = "3.13"
@@ -23,6 +23,6 @@ target "dev" {
         # DOCKER_META_VERSION = "1.19.0-dev"
     }
     tags = [
-        "soramitsukhmer-lab/vault:dev"
+        "harbor.sorakh.io/soramitsukhmer-lab/vault:dev"
     ]
 }
