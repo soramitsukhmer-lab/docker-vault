@@ -22,6 +22,10 @@ target "release" {
         # VAULT_VERSION = "1.19.0"
         # DOCKER_META_VERSION = "1.19.0-dev"
     }
+    platforms = [
+        "linux/amd64",
+        "linux/arm64"
+    ]
     tags = [
         "harbor.sorakh.io/soramitsukhmer-lab/vault:dev"
     ]
