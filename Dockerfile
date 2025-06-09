@@ -64,10 +64,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     GOLDFLAGS="${GOLDFLAGS} -X ${GIT_IMPORT}.GitCommit=${GIT_COMMIT}${GIT_DIRTY}"
     GOLDFLAGS="${GOLDFLAGS} -X ${GIT_IMPORT}.BuildDate=${GIT_DATE}"
 
-    for GOARCH in amd64 arm64; do
-        mkdir -p ./pkg/bin/linux_${GOARCH}
-        CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o ./pkg/bin/linux_${GOARCH} -tags "${GOTAGS}" -ldflags "${GOLDFLAGS}" .
-    done
+    CGO_ENABLED=0 go build -o ./pkg/bin/vault -tags "${GOTAGS}" -ldflags "${GOLDFLAGS}" .
 EOF
 
 # Final stage
@@ -84,7 +81,7 @@ RUN set -eux; \
 
 # # Copy the Vault binary from the build stage.
 ARG TARGETARCH
-COPY --from=stage2 /vault/pkg/bin/linux_${TARGETARCH}/vault /bin/vault
+COPY --from=stage2 /vault/pkg/bin/vault /bin/vault
 
 # /vault/logs is made available to use as a location to store audit logs, if
 # desired; /vault/file is made available to use as a location with the file
