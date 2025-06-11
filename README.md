@@ -15,3 +15,11 @@ storage "file" {
 // The "iroha-transit" is available in the plugin directory.
 plugin_directory = "/vault/plugins"
 ```
+
+Register `iroha-transit` secret plugin:
+```
+export VAULT_TOKEN=token
+plugin-register secret iroha-transit <plugin_version>
+```
+
+The plugin release can be found on [soramitsukhmer-lab/poc-vault-iroha-integration](https://github.com/soramitsukhmer-lab/poc-vault-iroha-integration) release page.
