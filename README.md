@@ -18,8 +18,13 @@ plugin_directory = "/vault/plugins"
 
 Register `iroha-transit` secret plugin:
 ```
+export VAULT_ADDR=http://localhost:8200
 export VAULT_TOKEN=token
-plugin-register secret iroha-transit <plugin_version>
+
+vault-plugin-catalog update
+vault-plugin-catalog list
+vault-plugin-catalog install iroha-transit-demo
+vault-plugin-catalog register iroha-transit-demo
 ```
 
 The plugin release can be found on [soramitsukhmer-lab/poc-vault-iroha-integration](https://github.com/soramitsukhmer-lab/poc-vault-iroha-integration) release page.
