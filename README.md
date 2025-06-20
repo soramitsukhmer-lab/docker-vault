@@ -28,10 +28,10 @@ vault-plugin-catalog update
 vault-plugin-catalog list
 
 # Download and install the plugin to appropriate directory
-vault-plugin-catalog install iroha-transit-demo
+vault-plugin-catalog install iroha-transit
 
 # This will not register the plugin to Vault but will print all necessary command to register the plugin
-vault-plugin-catalog register iroha-transit-demo
+vault-plugin-catalog register iroha-transit
 ```
 
 The plugin release can be found on [soramitsukhmer-lab/poc-vault-iroha-integration](https://github.com/soramitsukhmer-lab/poc-vault-iroha-integration) release page.
