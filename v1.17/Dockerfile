@@ -1,10 +1,8 @@
 ARG VAULT_VERSION=latest
-ARG IROHA_TRANSIT_RELEASE=https://github.com/soramitsukhmer-lab/poc-vault-iroha-integration/releases/download
-ARG IROHA_TRANSIT_VERSION=0.0.1-alpha.1
+ARG VAULT_PLUGIN_CATALOG_VERSION=0.1.0-rc.7
 
 FROM hashicorp/vault:${VAULT_VERSION}
 ARG TARGETARCH
-ARG IROHA_TRANSIT_RELEASE
-ARG IROHA_TRANSIT_VERSION
-ADD --chmod=0755 ${IROHA_TRANSIT_RELEASE}/${IROHA_TRANSIT_VERSION}/iroha-transit-${IROHA_TRANSIT_VERSION}-linux-${TARGETARCH} /vault/plugins/iroha-transit-${IROHA_TRANSIT_VERSION}
+ARG VAULT_PLUGIN_CATALOG_VERSION
+ADD --chmod=0755 https://github.com/soramitsukhmer-lab/vault-plugin-catalog/releases/download/v${VAULT_PLUGIN_CATALOG_VERSION}/vault-plugin-catalog-linux-${TARGETARCH} /usr/local/bin/vault-plugin-catalog
 ADD rootfs /
