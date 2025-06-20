@@ -17,14 +17,14 @@ plugin_directory = "/vault/plugins"
 ```
 
 Register `iroha-transit` secret plugin:
-```
+```bash
 export VAULT_ADDR=http://localhost:8200
 export VAULT_TOKEN=token
 
 vault-plugin-catalog update
 vault-plugin-catalog list
 vault-plugin-catalog install iroha-transit-demo
-vault-plugin-catalog register iroha-transit-demo
+vault-plugin-catalog register iroha-transit-demo # This will not register the plugin to Vault but will print all necessary command to register the plugin
 ```
 
 The plugin release can be found on [soramitsukhmer-lab/poc-vault-iroha-integration](https://github.com/soramitsukhmer-lab/poc-vault-iroha-integration) release page.
