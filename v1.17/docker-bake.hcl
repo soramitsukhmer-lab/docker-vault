@@ -1,4 +1,5 @@
 variable "VAULT_VERSION" { default = "1.17.6" }
+variable "VAULT_PLUGIN_CATALOG_VERSION" { default = "0.1.0-rc.10" }
 
 target "docker-metadata-action" {}
 
@@ -6,6 +7,7 @@ target "vault" {
     inherits = ["docker-metadata-action"]
     args = {
         VAULT_VERSION = "${VAULT_VERSION}"
+        VAULT_PLUGIN_CATALOG_VERSION = "${VAULT_PLUGIN_CATALOG_VERSION}"
     }
 }
 
