@@ -50,7 +50,8 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
 <<EOF
     go mod tidy
-    cd sdk && { go mod tidy; cd -; }
+    (cd api && go mod tidy)
+    (cd sdk && go mod tidy)
 
     GIT_IMPORT="github.com/hashicorp/vault/version"
     GIT_COMMIT=$(git rev-parse --short HEAD)
@@ -66,7 +67,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     GOLDFLAGS="${GOLDFLAGS} -X ${GIT_IMPORT}.BuildDate=${GIT_DATE}"
     for GOARCH in amd64 arm64; do
         mkdir -p ./pkg/bin/linux_${GOARCH}
-        CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o ./pkg/bin/linux_${GOARCH} -tags "${GOTAGS}" -ldflags "${GOLDFLAGS}" .
+        (set -x; CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o ./pkg/bin/linux_${GOARCH} -tags "${GOTAGS}" -ldflags "${GOLDFLAGS}" .)
     done
 EOF
 
