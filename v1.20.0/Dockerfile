@@ -1,0 +1,78 @@
+ARG VAULT_VERSION
+ARG GO_VERSION
+ARG NODE_VERSION
+ARG VAULT_PLUGIN_CATALOG_VERSION
+
+ARG ALPINE_VERSION=3.13
+
+# Stage 0: Clone the Vault repository
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS stage0
+RUN apk add --no-cache git patch
+
+# Clone the hashicorp/vault repository
+ARG VAULT_VERSION
+RUN git clone --depth=1 --branch=v${VAULT_VERSION} --single-branch https://github.com/hashicorp/vault.git /vault
+WORKDIR /vault
+
+# Stage 1: Build the UI
+FROM --platform=$BUILDPLATFORM node:${NODE_VERSION}-alpine AS stage1
+RUN apk add --no-cache git patch make
+RUN npm install -g corepack && corepack disable && corepack enable
+COPY --from=stage0 /vault /vault
+WORKDIR /vault
+RUN --mount=type=cache,target=/root/.yarn/ \
+    --mount=type=cache,target=/root/.cache/yarn \
+    --mount=type=cache,target=/usr/local/share/.cache/yarn \
+<<EOF
+    cd ui/
+    yarn install
+    /usr/local/bin/npm rebuild node-sass
+    yarn build
+    rm -rf node_modules
+EOF
+
+# Stage 2: Build the Vault binary
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine AS stage2
+RUN apk add --no-cache bash git patch
+
+# Copy the Vault source code from the previous stage
+COPY --link --from=stage0 /vault /vault
+COPY --link --from=stage1 /vault/http/web_ui/ /vault/http/web_ui/
+WORKDIR /vault
+
+# Replace the go-discover dependency with the soramitsukhmer-lab version
+RUN echo "replace github.com/hashicorp/go-discover => github.com/soramitsukhmer-lab/go-discover go-netaddrs" >> go.mod
+
+# Build the Vault binary
+ARG TARGETARCH
+ARG DOCKER_META_VERSION=
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+<<EOF
+    go mod tidy
+    cd sdk && { go mod tidy; cd -; }
+
+    GIT_IMPORT="github.com/hashicorp/vault/version"
+    GIT_COMMIT=$(git rev-parse --short HEAD)
+    GIT_COMMIT_YEAR=$(git show -s --format=%cd --date=format:%Y HEAD)
+    GIT_DIRTY=$(test -n "`git status --porcelain`" && echo "+CHANGES" || true)
+    GIT_DIRTY="${GIT_DIRTY}+soramitsukhmer-lab"
+    DATE_FORMAT="%Y-%m-%dT%H:%M:%SZ"
+    GIT_DATE=$(date -u +${DATE_FORMAT})
+
+    GOTAGS="vault ui"
+    GOLDFLAGS="-w -s"
+    GOLDFLAGS="${GOLDFLAGS} -X ${GIT_IMPORT}.GitCommit=${GIT_COMMIT}${GIT_DIRTY}"
+    GOLDFLAGS="${GOLDFLAGS} -X ${GIT_IMPORT}.BuildDate=${GIT_DATE}"
+    for GOARCH in amd64 arm64; do
+        mkdir -p ./pkg/bin/linux_${GOARCH}
+        CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o ./pkg/bin/linux_${GOARCH} -tags "${GOTAGS}" -ldflags "${GOLDFLAGS}" .
+    done
+EOF
+
+# Final stage
+FROM hashicorp/vault:${VAULT_VERSION}
+ARG TARGETARCH
+COPY --from=stage2 /vault/pkg/bin/linux_${TARGETARCH}/vault /bin/vault
+ARG VAULT_PLUGIN_CATALOG_VERSION
+ADD --chmod=0755 https://github.com/soramitsukhmer-lab/vault-plugin-catalog/releases/download/v${VAULT_PLUGIN_CATALOG_VERSION}/vault-plugin-catalog-linux-${TARGETARCH} /usr/local/bin/vault-plugin-catalog
