@@ -3,16 +3,12 @@ ARG GO_VERSION=1.24.3
 ARG NODE_VERSION=20
 ARG VAULT_PLUGIN_CATALOG_VERSION=0.1.0-rc.11
 
-ARG ALPINE_VERSION=3.13
-
 # Stage 0: Clone the Vault repository
+ARG ALPINE_VERSION=3.13
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS stage0
-RUN apk add --no-cache bash git make patch
-
-# Clone the hashicorp/vault repository
+RUN apk add --no-cache git
 ARG VAULT_VERSION
 RUN git clone --depth=1 --branch=v${VAULT_VERSION} --single-branch https://github.com/hashicorp/vault.git /vault
-WORKDIR /vault
 
 # Stage 1: Build the UI
 FROM --platform=$BUILDPLATFORM node:${NODE_VERSION}-alpine AS stage1
