@@ -10,11 +10,20 @@ variable "GITHUB_REPOSITORY_OWNER" {
   default = "soramitsukhmer-lab"
 }
 
+
+target "docker-metadata-action" {}
+target "github-metadata-action" {}
+
+
 target "default" {
   matrix = {
     version = MATRIX_VERSIONS
   }
   name = "vault_${replace(version, ".", "_")}"
+  inherits = [
+    "docker-metadata-action",
+    "github-metadata-action",
+  ]
   context = "v${version}"
   platforms = [
     "linux/amd64",
