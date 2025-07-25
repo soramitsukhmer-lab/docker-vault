@@ -1,9 +1,25 @@
+variable "MATRIX_VERSIONS" {
+  type = list(string)
+  default = [
+    "1.17.6",
+    "1.20.0",
+  ]
+}
+
 target "default" {
   matrix = {
-    version = [
-      "1.17.6",
-      "1.20.0",
-    ]
+    version = MATRIX_VERSIONS
+  }
+  name = "vault_${replace(version, ".", "_")}"
+  context = "v${version}"
+  tags = [
+      "harbor.sorakh.io/soramitsukhmer-lab/vault:${version}"
+  ]
+}
+
+target "dev" {
+  matrix = {
+    version = MATRIX_VERSIONS
   }
   name = "vault_${replace(version, ".", "_")}"
   context = "v${version}"
