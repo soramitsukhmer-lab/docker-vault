@@ -63,9 +63,18 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     done
 EOF
 
+# Extras
+
+# https://github.com/socheatsok78/go-discover-dockerswarm
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine AS discover-dockerswarm
+ADD https://github.com/socheatsok78/go-discover-dockerswarm.git#main /go-discover-dockerswarm
+WORKDIR /go-discover-dockerswarm/cmd
+RUN go build -o /bin/discover-dockerswarm .
+
 # Final stage
 FROM hashicorp/vault:${VAULT_VERSION}
 ARG TARGETARCH
 COPY --from=stage2 /vault/pkg/bin/linux_${TARGETARCH}/vault /bin/vault
+COPY --from=discover-dockerswarm /bin/discover-dockerswarm /bin/discover-dockerswarm
 ARG VAULT_PLUGIN_CATALOG_VERSION
 ADD --chmod=0755 https://github.com/soramitsukhmer-lab/vault-plugin-catalog/releases/download/v${VAULT_PLUGIN_CATALOG_VERSION}/vault-plugin-catalog-linux-${TARGETARCH} /usr/local/bin/vault-plugin-catalog
