@@ -1,13 +1,13 @@
-ARG VAULT_VERSION
-ARG GO_VERSION
-ARG NODE_VERSION
-ARG VAULT_PLUGIN_CATALOG_VERSION
+ARG VAULT_VERSION=1.20.0
+ARG GO_VERSION=1.24.3
+ARG NODE_VERSION=20
+ARG VAULT_PLUGIN_CATALOG_VERSION=0.1.0-rc.11
 
 ARG ALPINE_VERSION=3.13
 
 # Stage 0: Clone the Vault repository
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS stage0
-RUN apk add --no-cache git patch
+RUN apk add --no-cache bash git make patch
 
 # Clone the hashicorp/vault repository
 ARG VAULT_VERSION
@@ -24,11 +24,7 @@ RUN --mount=type=cache,target=/root/.yarn/ \
     --mount=type=cache,target=/root/.cache/yarn \
     --mount=type=cache,target=/usr/local/share/.cache/yarn \
 <<EOF
-    cd ui/
-    yarn install
-    /usr/local/bin/npm rebuild node-sass
-    yarn build
-    rm -rf node_modules
+    make ember-dist
 EOF
 
 # Stage 2: Build the Vault binary
@@ -40,8 +36,8 @@ COPY --link --from=stage0 /vault /vault
 COPY --link --from=stage1 /vault/http/web_ui/ /vault/http/web_ui/
 WORKDIR /vault
 
-# Replace the go-discover dependency with the soramitsukhmer-lab version
-RUN echo "replace github.com/hashicorp/go-discover => github.com/soramitsukhmer-lab/go-discover go-netaddrs" >> go.mod
+# Replace the go-discover dependency with the socheatsok78-lab version
+RUN echo "replace github.com/hashicorp/go-discover => github.com/socheatsok78-lab/go-discover go-netaddrs" >> go.mod
 
 # Build the Vault binary
 ARG TARGETARCH
@@ -50,8 +46,8 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
 <<EOF
     go mod tidy
-    (cd api && go mod tidy)
-    (cd sdk && go mod tidy)
+    # (cd api && go mod tidy)
+    # (cd sdk && go mod tidy)
 
     GIT_IMPORT="github.com/hashicorp/vault/version"
     GIT_COMMIT=$(git rev-parse --short HEAD)
