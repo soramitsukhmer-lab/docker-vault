@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> This repository is archived and no longer maintained. The code is provided as reference only. For the latest updates, please refer to [soramitsukhmer-lab/docker-hashicorp](https://github.com/soramitsukhmer-lab/docker-hashicorp) repository.
+
 ## About
 
 This repository is used to build the container image for [soramitsukhmer-lab/vault#builtin/logical/transit/ed25519sha3](https://github.com/soramitsukhmer-lab/vault/tree/builtin/logical/transit/ed25519sha3).
