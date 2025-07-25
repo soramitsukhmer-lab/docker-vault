@@ -1,7 +1,17 @@
 name: Build
 
 on:
+  workflow_dispatch:
   push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   prepare:
@@ -52,7 +62,7 @@ jobs:
         uses: docker/bake-action@v6
         with:
           targets: ${{ matrix.target }}
-          push: false
+          push: ${{ github.event_name != 'pull_request' }}
           files: |
             ./docker-bake.hcl
             cwd://${{ steps.docker-meta.outputs.bake-file-labels }}
